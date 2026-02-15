@@ -1,0 +1,23 @@
+# Node
+node_modules
+dist
+.angular
+
+# Python
+__pycache__
+*.pyc
+venv
+
+# Django
+db.sqlite3
+*.log
+
+# Env files
+.env
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
