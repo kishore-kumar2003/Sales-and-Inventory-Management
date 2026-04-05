@@ -29,7 +29,8 @@ class Product(models.Model):
     def get_profit_margin(self):
         if self.selling_price == 0:
             return 0
-        return ((self.selling_price - self.cost_price) / self.selling_price) * 100
+        margin = ((self.selling_price - self.cost_price) / self.selling_price) * 100
+        return round(margin, 2)
 
 
 # Production Management

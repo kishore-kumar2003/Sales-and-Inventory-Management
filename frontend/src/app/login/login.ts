@@ -21,6 +21,7 @@ export class LoginComponent {
     const body = { email: this.email, password: this.password };
     this.auth.login(body).subscribe({
         next: (res) => {
+        console.log('Login Successful', res);
         localStorage.setItem('access_token', res.access);
         localStorage.setItem('refresh_token', res.refresh);
         this.router.navigate(['/homepage']);

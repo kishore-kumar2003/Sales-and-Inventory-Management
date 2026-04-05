@@ -1,0 +1,216 @@
+<div class="container mt-2">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Products Details</h1>
+        <button class="btn btn-outline-primary" (click)="addProduct()">Add Product</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover w-100">
+            <thead>
+                <tr>
+                    <th>Product Id</th>
+                    <th>product name</th>
+                    <th>product Description</th>
+                    <th>cost_price</th>
+                    <th>selling_price</th>
+                    <th>minimum_stock</th>
+                    <th>current_stock</th>
+                    <th>low_stock_alert</th>
+                    <th>profit_margin</th>
+                    <th>is_active</th>
+                    <th>created at</th>
+                    <th>last update at</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (product of products_details; track $index) {
+                    <tr>
+                        <td>{{product.id}}</td>
+                        <td>{{product.name|titlecase}}</td>
+                        <td>{{product.description|titlecase}}</td>
+                        <td>{{product.cost_price|currency:'INR'}}</td>
+                        <td>{{product.selling_price|currency:'INR'}}</td>
+                        <td>{{product.minimum_stock}}</td>
+                        <td>{{product.current_stock}}</td>
+                        <td>{{product.low_stock_alert}}</td>
+                        <td>{{product.profit_margin|percent}}</td>
+                        <td>{{product.is_active}}</td>
+                        <td>{{product.created_at|date: "HH:mm"}}</td>
+                        <td>{{product.updated_at|date: "HH:mm"}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" (click)="editProduct(product.id)"> <i
+                                    class="bi bi-pencil-square"></i></button>
+                            <button class="btn btn-sm btn-danger" (click)="deleteProduct(product.id)"> <i
+                                    class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductDialog" #addProductDialog tabindex="-1" aria-labelledby="addProductLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Modal Header -->       
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductLabel">Add Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+
+                    <form (ngSubmit)="addNewProduct()" #addProductForm="ngForm">
+
+                        <!-- Product Name -->
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" id="productName" class="form-control" name="name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Product Description</label>
+                            <textarea id="productDescription" class="form-control" name="description" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="costPrice" class="form-label">Cost Price</label>
+                            <input type="number" id="costPrice" class="form-control" name="cost_price" [(ngModel)]="newProduct.cost_price" (input)="calculateProfitMargin(newProduct.cost_price, newProduct.selling_price)" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sellingPrice" class="form-label">Selling Price</label>
+                            <input type="number" id="sellingPrice" class="form-control" name="selling_price" [(ngModel)]="newProduct.selling_price" (input)="calculateProfitMargin(newProduct.cost_price, newProduct.selling_price)" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="minimumStock" class="form-label">Minimum Stock</label>
+                            <input type="number" id="minimumStock" class="form-control" name="minimum_stock" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="currentStock" class="form-label">Current Stock</label>
+                            <input type="number" id="currentStock" class="form-control" name="current_stock" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lowStockAlert" class="form-label">Low Stock Alert</label>
+                            <input type="checkbox" id="lowStockAlert" class="form-check-input" name="low_stock_alert">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="profitMargin" class="form-label">Profit Margin</label>
+                            <input type="number" id="profitMargin" class="form-control" [value]="profitMargin" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="isActive" class="form-label">Is Active</label>
+                            <input type="checkbox" id="isActive" class="form-check-input" name="is_active">
+                        </div>
+
+                        <div class="modal-footer">
+                            <button (click)="addCloseDialog()" class="btn btn-outline-secondary">Close</button>
+                            <button type="submit" class="btn btn-outline-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductDialog" #editProductDialog tabindex="-1" aria-labelledby="editProductLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductLabel">Edit Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+
+                    <form (ngSubmit)="updateProduct()" #editProductForm="ngForm">
+
+                        <!-- Product Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" name="name" [(ngModel)]="Edit_product_details.name"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" id="productName" class="form-control"
+                                [(ngModel)]="Edit_product_details.name" name="name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Product Description</label>
+                            <textarea id="productDescription" class="form-control"
+                                [(ngModel)]="Edit_product_details.description" name="description" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="costPrice" class="form-label">Cost Price</label>
+                            <input type="number" id="costPrice" class="form-control"
+                                [(ngModel)]="Edit_product_details.cost_price" name="cost_price" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="sellingPrice" class="form-label">Selling Price</label>
+                            <input type="number" id="sellingPrice" class="form-control"
+                                [(ngModel)]="Edit_product_details.selling_price" name="selling_price" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="minimumStock" class="form-label">Minimum Stock</label>
+                            <input type="number" id="minimumStock" class="form-control"
+                                [(ngModel)]="Edit_product_details.minimum_stock" name="minimum_stock" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="currentStock" class="form-label">Current Stock</label>
+                            <input type="number" id="currentStock" class="form-control"
+                                [(ngModel)]="Edit_product_details.current_stock" name="current_stock" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lowStockAlert" class="form-label">Low Stock Alert</label>
+                            <input type="checkbox" id="lowStockAlert" class="form-check-input"
+                                [(ngModel)]="Edit_product_details.low_stock_alert" name="low_stock_alert">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="profitMargin" class="form-label">Profit Margin</label>
+                            <input type="number" id="profitMargin" class="form-control"
+                                [(ngModel)]="Edit_product_details.profit_margin" name="profit_margin" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="isActive" class="form-label">Is Active</label>
+                            <input type="checkbox" id="isActive" class="form-check-input"
+                                [(ngModel)]="Edit_product_details.is_active" name="is_active">
+                        </div>
+
+
+                        <!-- Add more form fields as needed -->
+                        <div class="modal-footer">
+                            <button (click)="editCloseDialog()" class="btn btn-outline-secondary">Close</button>
+                            <button type="submit" class="btn btn-outline-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<pre>{{products_details|json}}</pre>
